@@ -23,7 +23,20 @@
             </button>
           </div>
         </div>
+
+        <!-- Selector de ordenamiento -->
+        <div class="mt-3">
+          <label for="orden" class="form-label text-white">Ordenar por:</label>
+          <select id="orden" class="form-select" [(ngModel)]="ordenSeleccionado" (change)="ordenarJuegos()">
+            <option value="nombre-asc">Nombre (A-Z)</option>
+            <option value="nombre-desc">Nombre (Z-A)</option>
+            <option value="precio-asc">Precio (menor a mayor)</option>
+            <option value="precio-desc">Precio (mayor a menor)</option>
+            <option value="rating-desc">Rating (mejor a peor)</option>
+          </select>
+        </div>
       </div>
+
       <div class="col-lg-4 d-flex align-items-end justify-content-lg-end">
         <div class="results-info">
           <span class="badge-gaming secondary">
@@ -51,7 +64,6 @@
           <app-filtros (filtrosChange)="onFiltrosChange($event)"></app-filtros>
         </div>
       </div>
-      
       <!-- Lista de juegos -->
       <div class="col-lg-9">
         @if(juegosFiltrados$ | async; as juegos) {

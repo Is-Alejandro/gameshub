@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, map } from 'rxjs';
 import { Juego } from '../interfaces/juego.interface';
+import { Estadisticas } from '../interfaces/estadisticas.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -84,6 +85,44 @@ export class JuegosDataService {
         .sort((a, b) => new Date(b.fechaLanzamiento).getTime() - new Date(a.fechaLanzamiento).getTime())
         .slice(0, limite)
       )
+    );
+  }
+
+  getJuegosPorPrecio(min: number, max: number): Observable<Juego[]> {
+    return this.juegos$.pipe(
+      map(juegos => juegos.filter(juego => 
+        juego.precio >= min && juego.precio <= max
+      ))
+    );
+  }
+
+  getEstadisticas(): Observable<Estadisticas> {
+    return this.juegos$.pipe(
+      map(juegos => {
+        const totalJuegos = juegos.length;
+        const juegosGratis = juegos.filter(j => j.esGratis).length;
+        const juegosPago = totalJuegos - juegosGratis;
+
+        const juegosDePago = juegos.filter(j => !j.esGratis && typeof j.precio === 'number');
+        const promedioPrecio = juegosDePago.length > 0
+          ? juegosDePago.reduce((sum, j) => sum + j.precio, 0) / juegosDePago.length
+          : 0;
+
+        const mejor = juegos.reduce((prev, current) =>
+          prev.rating > current.rating ? prev : current
+        );
+
+        return {
+          totalJuegos,
+          juegosGratis,
+          juegosPago,
+          mejorRating: {
+            nombre: mejor.nombre,
+            rating: mejor.rating
+          },
+          promedioPrecio
+        };
+      })
     );
   }
 }
